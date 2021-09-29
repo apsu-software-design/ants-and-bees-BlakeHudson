@@ -43,7 +43,9 @@ export abstract class Insect {
   }
 }
 
-
+/**
+ * Builder class for Bee
+ */
 export class Bee extends Insect {
   readonly name:string = 'Bee';
   private status:string;
@@ -52,10 +54,16 @@ export class Bee extends Insect {
     super(armor, place);
   }
 
+  /**
+   * sting reduces an Ant's armor by the damage number of the Bee
+   * @param ant the ant being stug
+   * @returns returns reults of ants.reduceArmor()
+   */
   sting(ant:Ant):boolean{
     console.log(this+ ' stings '+ant+'!');
     return ant.reduceArmor(this.damage);
   }
+
 
   isBlocked():boolean {
     return this.place.getAnt() !== undefined;
@@ -79,7 +87,7 @@ export class Bee extends Insect {
 }
 
 /**
- * Base Ant class
+ * Base Ant class with basic functionality relevant to Ant type
  */
 export abstract class Ant extends Insect {
   protected boost:string;
@@ -95,7 +103,9 @@ export abstract class Ant extends Insect {
 }
 
 /**
- * Builder class for Grower Ant
+ * Growers are ants that grow food and boosts. 
+ * Each turn a Grower ant will either produce 1 food for the colony or occasionally a boost that can be given to the ants. 
+ * Growers cost 1 food to deploy and have 1 armor.
  */
 export class GrowerAnt extends Ant {
   readonly name:string = "Grower";
@@ -124,7 +134,12 @@ export class GrowerAnt extends Ant {
   }  
 }
 
-
+/**
+ * Throwers are ants that throw leaves at bees to drive them off. 
+ * Each turn a Thrower ant will throw one leaf at the closest bee within range. 
+ * Note that Throwers can throw different leaves when boosted. 
+ * Throwers cost 4 food to deploy and have 1 armor
+ */
 export class ThrowerAnt extends Ant {
   readonly name:string = "Thrower";
   private damage:number = 1;
@@ -133,6 +148,11 @@ export class ThrowerAnt extends Ant {
     super(1,4);
   }
 
+  /**
+   * performs the action of a thrower
+   * thrower ants have condiiontal actions based on a specific boost
+   * boosts are passed in the form of a string
+   */
   act() {
     if(this.boost !== 'BugSpray'){
       let target;
@@ -168,7 +188,13 @@ export class ThrowerAnt extends Ant {
   }
 }
 
-
+/**
+ * Eaters are ants that will eat the bees outright! 
+ * On its turn, an Eater ant will swallow a bee in the same tunnel and begin digesting. 
+ * It takes 3 turns to eat the bee and be ready to eat another. 
+ * If the Eater is damaged or perishes quickly after swallowing the bee, it may cough up the invader! 
+ * Eaters cost 4 food to deploy and have 2 armor.
+ */
 export class EaterAnt extends Ant {
   readonly name:string = "Eater";
   private turnsEating:number = 0;
@@ -177,10 +203,20 @@ export class EaterAnt extends Ant {
     super(2,4)
   }
 
+  /**
+   * Determines if there are bees in the eater ant's stomach
+   * @returns true if at l one bee is in stomach
+   */
   isFull():boolean {
     return this.stomach.getBees().length > 0;
   }
 
+  /**
+   * action for eating bee during turn
+   * EaterAnts will try to eat the closest Bee to them as long as they do not have Bees in their stomach
+   * EaterAnts will hold Bees in their stomach for 3 turns
+   * After 3 turns the Bees are removed
+   */
   act() {
     console.log("eating: "+this.turnsEating);
     if(this.turnsEating == 0){
@@ -202,6 +238,13 @@ export class EaterAnt extends Ant {
     }
   }  
 
+  /**
+   * If the EaterAnt has at least 1 or more armor then continue eating aciton
+   * If the EaterAnt armor falls to 0 or below and it has been eating at least 1 turn
+   * the Bees that it has eaten are removed fro
+   * @param amount how much to reduce armor by
+   * @returns 
+   */
   reduceArmor(amount:number):boolean {
     this.armor -= amount;
     console.log('armor reduced to: '+this.armor);
@@ -227,7 +270,11 @@ export class EaterAnt extends Ant {
   }
 }
 
-
+/**
+ * Scuba ants are like Throwers and throw leaves at the bees. 
+ * However, Scuba ants are able to survive in water-filled tunnels. 
+ * Scuba ants cost 5 food and have 1 armor.
+ */
 export class ScubaAnt extends Ant {
   readonly name:string = "Scuba";
   private damage:number = 1;
@@ -271,7 +318,12 @@ export class ScubaAnt extends Ant {
   }
 }
 
-
+/**
+ * Guard ants are able to protect other ants, occupying the same tunnel as them 
+ * (this is the only time you can have more than one ant in a tunnel). 
+ * When a guard is in the tunnel, any attacks from the bees hit it first, and only hurt the protected ant if the Guard perishes. 
+ * Guards cost 4 food to deploy and have 2 armor. 
+ */
 export class GuardAnt extends Ant {
   readonly name:string = "Guard";
 
