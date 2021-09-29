@@ -1,15 +1,24 @@
 import {AntColony, Place} from './game';
-
+/**
+ * Basis for creating other insects
+ * contains name of insect, place, and armor count
+ */
 export abstract class Insect {
   readonly name:string;
-
+  //constructor containing armor count and location
   constructor(protected armor:number, protected place:Place){}
-
+  //getters and setters
   getName():string { return this.name; }
   getArmor():number { return this.armor; }
   getPlace() { return this.place; }
   setPlace(place:Place){ this.place = place; }
-
+  /**
+   * reduces the insect's armor count 
+   * also removes the insect from the game if the insect has expired
+   * An insect expires when its armor count reaches 0 or less
+   * @param amount the amount of armor to reduce
+   * @returns true if insect is out of armor and expired
+   */
   reduceArmor(amount:number):boolean {
     this.armor -= amount;
     if(this.armor <= 0){
@@ -20,8 +29,15 @@ export abstract class Insect {
     return false;
   }
 
+  /**
+   * To be implemented by each specific type of insect
+   * @param colony optional parameter, not all insects belong to an AntColony
+   */
   abstract act(colony?:AntColony):void;
-
+  /**
+   * insect name and place name formatted for string output
+   * @returns Insect name and place if applicable
+   */
   toString():string {
     return this.name + '('+(this.place ? this.place.name : '')+')';
   }
@@ -62,7 +78,9 @@ export class Bee extends Insect {
   }
 }
 
-
+/**
+ * Base Ant class
+ */
 export abstract class Ant extends Insect {
   protected boost:string;
   constructor(armor:number, private foodCost:number = 0, place?:Place) {
@@ -76,13 +94,20 @@ export abstract class Ant extends Insect {
   }
 }
 
-
+/**
+ * Builder class for Grower Ant
+ */
 export class GrowerAnt extends Ant {
   readonly name:string = "Grower";
   constructor() {
     super(1,1)
   }
-
+  /**
+   * Uses Math function to produce a pseudo random number between 0 and 1
+   * Based on the random number an action to the AntColony is performed
+   * actions are adding a boost or increasing food.
+   * @param colony 
+   */
   act(colony:AntColony) {
     let roll = Math.random();
     if(roll < 0.6){

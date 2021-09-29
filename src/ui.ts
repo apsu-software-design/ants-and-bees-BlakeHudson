@@ -14,6 +14,13 @@ export function showMapOf(game:AntGame){
   console.log(getMap(game));
 }
 
+/**
+ * displays current game board to user
+ * shows current number of turns, food, and boosts available
+ * also shows matrix of available positions and tunnel locations
+ * @param game 
+ * @returns a string of current game status
+ */
 function getMap(game:AntGame) {
   let places:Place[][] = game.getPlaces();
   let tunnelLength = places[0].length;
