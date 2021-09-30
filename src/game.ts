@@ -22,7 +22,10 @@ class Place {
     else
       return this.ant;
   }
-
+  /**
+   * A guarded ant is an Ant that occupies the same tunnel as a GuardAnt
+   * @returns ant occupying same tunnel as GuardAnt
+   */
   getGuardedAnt(): Ant {
     return this.ant;
   }

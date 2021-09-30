@@ -64,13 +64,21 @@ export class Bee extends Insect {
     return ant.reduceArmor(this.damage);
   }
 
-
+  /**
+   * Determines whether a position is blocked by an Ant
+   * @returns true if Ant is at same location
+   */
   isBlocked():boolean {
     return this.place.getAnt() !== undefined;
   }
 
   setStatus(status:string) { this.status = status; }
-
+  /**
+   * Performs the act for a Bee turn
+   * If a location is blocked by an Ant 
+   * and Bee is not in 'stuck' or 'cold' statue
+   * Bee stings Ant and reduces armor.
+   */
   act() {
     if(this.isBlocked()){
       if(this.status !== 'cold') {
@@ -94,7 +102,7 @@ export abstract class Ant extends Insect {
   constructor(armor:number, private foodCost:number = 0, place?:Place) {
     super(armor, place);
   }
-
+  //getters and setters
   getFoodCost():number { return this.foodCost; }
   setBoost(boost:string) { 
     this.boost = boost; 
@@ -104,7 +112,8 @@ export abstract class Ant extends Insect {
 
 /**
  * Growers are ants that grow food and boosts. 
- * Each turn a Grower ant will either produce 1 food for the colony or occasionally a boost that can be given to the ants. 
+ * Each turn a Grower ant will either produce 1 food for the colony 
+ * or a boost to be used by ither ants
  * Growers cost 1 food to deploy and have 1 armor.
  */
 export class GrowerAnt extends Ant {
@@ -115,8 +124,8 @@ export class GrowerAnt extends Ant {
   /**
    * Uses Math function to produce a pseudo random number between 0 and 1
    * Based on the random number an action to the AntColony is performed
-   * actions are adding a boost or increasing food.
-   * @param colony 
+   * actions are adding a specific boost or increasing food.
+   * @param colony AntColony to add the boost or food count to
    */
   act(colony:AntColony) {
     let roll = Math.random();
@@ -271,8 +280,8 @@ export class EaterAnt extends Ant {
 }
 
 /**
- * Scuba ants are like Throwers and throw leaves at the bees. 
- * However, Scuba ants are able to survive in water-filled tunnels. 
+ * ScubaAnt can  throw leaves at the closest Bee. 
+ * A ScubaAnt can survive in water 
  * Scuba ants cost 5 food and have 1 armor.
  */
 export class ScubaAnt extends Ant {
@@ -283,6 +292,9 @@ export class ScubaAnt extends Ant {
     super(1,5)
   }
 
+  /**
+   * act is performed based on boost command 
+   */
   act() {
     if(this.boost !== 'BugSpray'){
       let target;
@@ -319,10 +331,8 @@ export class ScubaAnt extends Ant {
 }
 
 /**
- * Guard ants are able to protect other ants, occupying the same tunnel as them 
- * (this is the only time you can have more than one ant in a tunnel). 
- * When a guard is in the tunnel, any attacks from the bees hit it first, and only hurt the protected ant if the Guard perishes. 
- * Guards cost 4 food to deploy and have 2 armor. 
+ * GuardAnts have their armor reduced before other Ants occupying the same tunnel. 
+ * GuardAnts cost 4 food to deploy and have 2 armor. 
  */
 export class GuardAnt extends Ant {
   readonly name:string = "Guard";
@@ -331,9 +341,15 @@ export class GuardAnt extends Ant {
     super(2,4)
   }
 
+  /**
+   * returns the specific Ant that is being guarded
+   * @returns Ant being guarded
+   */
   getGuarded():Ant {
     return this.place.getGuardedAnt();
   }
-
+  /**
+   * GuardAnts do not perform an act during turns
+   */
   act() {}
 }
