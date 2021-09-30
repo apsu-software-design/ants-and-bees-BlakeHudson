@@ -1,5 +1,10 @@
 import { Insect, Bee, Ant, GrowerAnt, ThrowerAnt, EaterAnt, ScubaAnt, GuardAnt } from './ants';
-
+/**
+ * Base class for creating a Place in the game 
+ * a Place contains one or no Ant
+ * one or no GuardAnt
+ * 0 or more Bees contained in an Array
+ */
 class Place {
   protected ant: Ant;
   protected guard: GuardAnt;
@@ -10,12 +15,22 @@ class Place {
     private exit?: Place,
     private entrance?: Place) { }
 
+    // getters and setters
   getExit(): Place { return this.exit; }
 
   setEntrance(place: Place) { this.entrance = place; }
 
+  /**
+   * true if position is water, false if not.
+   * @returns true if Place is water 
+   */
   isWater(): boolean { return this.water; }
-  //getters
+  /**
+   * retrieves and Ant within the particular place
+   * returns GuardAnt type before returning other Ant types 
+   * if a GuardAnt exists
+   * @returns 
+   */
   getAnt(): Ant {
     if (this.guard)
       return this.guard;
@@ -23,15 +38,22 @@ class Place {
       return this.ant;
   }
   /**
-   * A guarded ant is an Ant that occupies the same tunnel as a GuardAnt
+   * A "guarded ant" is an Ant that occupies the same tunnel as a GuardAnt
    * @returns ant occupying same tunnel as GuardAnt
    */
   getGuardedAnt(): Ant {
     return this.ant;
   }
 
+  //getter
   getBees(): Bee[] { return this.bees; }
-
+  /**
+   * finds the closest Bee within a given range
+   * if no Bee is in specified range return undefined
+   * @param maxDistance max distance to search for a Bee
+   * @param minDistance number set to 0
+   * @returns closest Bee in range otherwise undefined
+   */
   getClosestBee(maxDistance: number, minDistance: number = 0): Bee {
     let p: Place = this;
     for (let dist = 0; p !== undefined && dist <= maxDistance; dist++) {
@@ -59,7 +81,12 @@ class Place {
       }
     return false;
   }
-
+/**
+ * removes an ant
+ * if there is a GuardAnt remove that ant and return,
+ * otherewise remove Ant from place
+ * @returns Ant or GuardAnt being removed
+ */
   removeAnt(): Ant {
     if (this.guard !== undefined) {
       let guard = this.guard;
@@ -73,11 +100,20 @@ class Place {
     }
   }
 
+  /**
+   * appends a Bee onto bees Array
+   * @param bee Bee object to be added 
+   */
   addBee(bee: Bee): void {
     this.bees.push(bee);
     bee.setPlace(this);
   }
-
+/**
+ * removes a Bee from bees by passing the Bee object as a param
+ * the index of the Bee is extraced and removed from bees
+ * bee's Place is set to undefined
+ * @param bee Bee to be removed
+ */
   removeBee(bee: Bee): void {
     var index = this.bees.indexOf(bee);
     if (index >= 0) {
@@ -85,7 +121,10 @@ class Place {
       bee.setPlace(undefined);
     }
   }
-
+/**
+ * removes all bees by setting each Bee in bees' place to undefined
+ * bees is set to an empty array
+ */
   removeAllBees(): void {
     this.bees.forEach((bee) => bee.setPlace(undefined));
     this.bees = [];
@@ -104,7 +143,9 @@ class Place {
       this.removeBee(insect);
     }
   }
-
+/**
+ * if Place contains water, remove ant Ant that is not a ScubaAnt
+ */
   act() {
     if (this.water) {
       if (this.guard) {
