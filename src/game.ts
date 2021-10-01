@@ -173,15 +173,24 @@ class Place {
 }
 
 /**
- * Hive is a type of Place that only contains 0 or more Bee Objects
+ * Hive is a type of Place that contains 0 or more Bee Objects
  */
 class Hive extends Place {
   private waves: { [index: number]: Bee[] } = {}
-
+/**
+ * 
+ * @param beeArmor 
+ * @param beeDamage 
+ */
   constructor(private beeArmor: number, private beeDamage: number) {
     super('Hive');
   }
-
+/**
+ * Adds all Bee Objects that will perform an action in the next turn of the game.
+ * @param attackTurn round of turn in the game.
+ * @param numBees total number of Bee Objects added to the attack wave.
+ * @returns Hive Object containing all BEe objects for next turn in game.
+ */
   addWave(attackTurn: number, numBees: number): Hive {
     let wave: Bee[] = [];
     for (let i = 0; i < numBees; i++) {
@@ -192,7 +201,13 @@ class Hive extends Place {
     this.waves[attackTurn] = wave;
     return this;
   }
-
+/**
+ * Randomly disperses all Bee objects contained in waces matching the turn number
+ * to tunnels in the AntColony.
+ * @param colony AntColony to disperse Bee objects to
+ * @param currentTurn turn number
+ * @returns remaining Bee Objects
+ */
   invade(colony: AntColony, currentTurn: number): Bee[] {
     if (this.waves[currentTurn] !== undefined) {
       this.waves[currentTurn].forEach((bee) => {
@@ -474,7 +489,7 @@ class AntGame {
     }
   }
   /**
-   * applies the specifed boost type to the ant at the specified coordinates
+   * Applies the specifed boost type to the ant at the specified coordinates.
    * @param boostType 
    * @param placeCoordinates row,col style matrix coordinates
    * @returns 
