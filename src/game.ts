@@ -1,9 +1,11 @@
 import { Insect, Bee, Ant, GrowerAnt, ThrowerAnt, EaterAnt, ScubaAnt, GuardAnt } from './ants';
 /**
  * Base class for creating a Place in the game 
+ * A Place allows Insects to be added, removed, and perform actions
+ * based on other Insects in the same Place
  * a Place contains one or no Ant
  * one or no GuardAnt
- * 0 or more Bees contained in an Array
+ * 0 or more Bee Objects
  */
 class Place {
   protected ant: Ant;
@@ -64,7 +66,12 @@ class Place {
     }
     return undefined;
   }
-
+  /**
+   * add Ant to Place
+   * sets appropriate properties based on whether ant is a GuardAnt or not.
+   * @param ant 
+   * @returns 
+   */
   addAnt(ant: Ant): boolean {
     if (ant instanceof GuardAnt) {
       if (this.guard === undefined) {
@@ -122,19 +129,26 @@ class Place {
     }
   }
 /**
- * removes all bees by setting each Bee in bees' place to undefined
- * bees is set to an empty array
+ * removes all bees in Place by setting each Bee in bees' place
+ * resets all appropriate properties of Place for Bee removal
  */
   removeAllBees(): void {
     this.bees.forEach((bee) => bee.setPlace(undefined));
     this.bees = [];
   }
 
+  /**
+   * removes the single Bee passed from Place
+   * @param bee Bee to be removed
+   */
   exitBee(bee: Bee): void {
     this.removeBee(bee);
     this.exit.addBee(bee);
   }
-
+/**
+ * removes either a Bee or Ant Insect
+ * @param insect Insect to be removed
+ */
   removeInsect(insect: Insect) {
     if (insect instanceof Ant) {
       this.removeAnt();
@@ -144,7 +158,7 @@ class Place {
     }
   }
 /**
- * if Place contains water, remove ant Ant that is not a ScubaAnt
+ * if Place contains water, remove any Ant that is not a ScubaAnt
  */
   act() {
     if (this.water) {
@@ -158,7 +172,9 @@ class Place {
   }
 }
 
-
+/**
+ * Hive is a type of Place that only contains 0 or more Bee Objects
+ */
 class Hive extends Place {
   private waves: { [index: number]: Bee[] } = {}
 
@@ -193,7 +209,9 @@ class Hive extends Place {
   }
 }
 
-
+/**
+ * Class to coordinate turn acts and interaction between all Bee, Ant, and Place objects in the game.
+ */
 class AntColony {
   private food: number;
   private places: Place[][] = [];
@@ -201,6 +219,15 @@ class AntColony {
   private queenPlace: Place = new Place('Ant Queen');
   private boosts: { [index: string]: number } = { 'FlyingLeaf': 1, 'StickyLeaf': 1, 'IcyLeaf': 1, 'BugSpray': 0 }
 
+  /**
+   * AntColony constructor initializes amount of food and availavle Boost objects.
+   * Creates the AntColony tunnels with entraces for Bees.
+   * Adds water to tunnels, and places location of 'Queen Ant'.
+   * @param startingFood 
+   * @param numTunnels 
+   * @param tunnelLength 
+   * @param moatFrequency 
+   */
   constructor(startingFood: number, numTunnels: number, tunnelLength: number, moatFrequency = 0) {
     this.food = startingFood;
 
@@ -223,7 +250,7 @@ class AntColony {
       this.beeEntrances.push(curr);
     }
   }
-
+  //getters and basic methods 
   getFood(): number { return this.food; }
 
   increaseFood(amount: number): void { this.food += amount; }
@@ -238,6 +265,10 @@ class AntColony {
 
   getBoosts(): { [index: string]: number } { return this.boosts; }
 
+  /**
+   * adds a new Boost Object to AntColony Boost inventory for access by the User.
+   * @param boost string matching name of Boost to add
+   */
   addBoost(boost: string) {
     if (this.boosts[boost] === undefined) {
       this.boosts[boost] = 0;
@@ -245,7 +276,13 @@ class AntColony {
     this.boosts[boost] = this.boosts[boost] + 1;
     console.log('Found a ' + boost + '!');
   }
-
+/**
+ * Adds an Ant Object to a Place if enough food is available
+ * reduces food count of AntColony after new Ant object is created. 
+ * @param ant ANt object to be depolyed
+ * @param place Place Object location where the ant is to be deployed
+ * @returns feedback if ant cannot be deployed to specified Place
+ */
   deployAnt(ant: Ant, place: Place): string {
     if (this.food >= ant.getFoodCost()) {
       let success = place.addAnt(ant);
@@ -257,11 +294,23 @@ class AntColony {
     }
     return 'not enough food';
   }
-
+/**
+ * removes an Ant from particular Place object
+ * @param place Place object to remove ant from
+ */
   removeAnt(place: Place) {
     place.removeAnt();
   }
 
+  /**
+   * Applies specified Boost at given Location.
+   * Checks and gives feedback that Boost name is entered correctly,
+   * Boost is available in inventory,
+   * and Ant is at the location given.
+   * @param boost name of Boost to apply
+   * @param place location where to apply Boost
+   * @returns 
+   */
   applyBoost(boost: string, place: Place): string {
     if (this.boosts[boost] === undefined || this.boosts[boost] < 1) {
       return 'no such boost';
@@ -274,6 +323,9 @@ class AntColony {
     return undefined;
   }
 
+  /**
+   * Calls all turn actions for Ants in AntColony.
+   */
   antsAct() {
     this.getAllAnts().forEach((ant) => {
       if (ant instanceof GuardAnt) {
@@ -284,13 +336,17 @@ class AntColony {
       ant.act(this);
     });
   }
-
+  /**
+   * Calls turn action for all available Bee Objects.
+   */
   beesAct() {
     this.getAllBees().forEach((bee) => {
       bee.act();
     });
   }
-
+/**
+ * Calls all turn actions for Places in AntColony
+ */
   placesAct() {
     for (let i = 0; i < this.places.length; i++) {
       for (let j = 0; j < this.places[i].length; j++) {
@@ -298,7 +354,10 @@ class AntColony {
       }
     }
   }
-
+/**
+ * retrieves all Ant objects in AntColony.
+ * @returns array of Ant objects in all Places in AntColony
+ */
   getAllAnts(): Ant[] {
     let ants = [];
     for (let i = 0; i < this.places.length; i++) {
@@ -310,7 +369,10 @@ class AntColony {
     }
     return ants;
   }
-
+/**
+ * 
+ * @returns array of Bee objects in all Places in AntColony
+ */
   getAllBees(): Bee[] {
     var bees = [];
     for (var i = 0; i < this.places.length; i++) {
