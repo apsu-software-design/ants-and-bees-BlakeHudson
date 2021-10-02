@@ -11,7 +11,13 @@ class Place {
   protected ant: Ant;
   protected guard: GuardAnt;
   protected bees: Bee[] = [];
-
+  /**
+   * 
+   * @param name name of Place
+   * @param water is the place water
+   * @param exit exit point
+   * @param entrance entrance point
+   */
   constructor(readonly name: string,
     protected readonly water = false,
     private exit?: Place,
@@ -108,7 +114,7 @@ class Place {
   }
 
   /**
-   * appends a Bee onto bees Array
+   * adds bee to bees
    * @param bee Bee object to be added 
    */
   addBee(bee: Bee): void {
@@ -117,8 +123,6 @@ class Place {
   }
 /**
  * removes a Bee from bees by passing the Bee object as a param
- * the index of the Bee is extraced and removed from bees
- * bee's Place is set to undefined
  * @param bee Bee to be removed
  */
   removeBee(bee: Bee): void {
@@ -178,9 +182,9 @@ class Place {
 class Hive extends Place {
   private waves: { [index: number]: Bee[] } = {}
 /**
- * 
- * @param beeArmor 
- * @param beeDamage 
+ * Hive constructor sets armor and damage
+ * @param beeArmor amount of damage damage waves can take
+ * @param beeDamage amount of damage dealt out by waves
  */
   constructor(private beeArmor: number, private beeDamage: number) {
     super('Hive');

@@ -5,7 +5,11 @@ import {AntColony, Place} from './game';
  */
 export abstract class Insect {
   readonly name:string;
-  //constructor containing armor count and location
+  /**
+   * Insect constructor
+   * @param armor amount of damage insect can take
+   * @param place loaction in game
+   */
   constructor(protected armor:number, protected place:Place){}
   //getters and setters
   getName():string { return this.name; }
@@ -35,8 +39,8 @@ export abstract class Insect {
    */
   abstract act(colony?:AntColony):void;
   /**
-   * insect name and place name formatted for string output
-   * @returns Insect name and place if applicable
+   * Insect name and Place name formatted for string output
+   * @returns Insect name and if applicable Palce
    */
   toString():string {
     return this.name + '('+(this.place ? this.place.name : '')+')';
@@ -49,15 +53,21 @@ export abstract class Insect {
 export class Bee extends Insect {
   readonly name:string = 'Bee';
   private status:string;
-
+/**
+ * Bee constructor sets armor and damage amount. 
+ * Place is optional.
+ * @param armor amount of damage Bee can take
+ * @param damage amount of damage Bee inflicts with sting
+ * @param place location of Bee
+ */
   constructor(armor:number, private damage:number, place?:Place){
     super(armor, place);
   }
 
   /**
-   * sting reduces an Ant's armor by the damage number of the Bee
-   * @param ant the ant being stug
-   * @returns returns reults of ants.reduceArmor()
+   * Reduces an ant's armor by the damage value of Bee
+   * @param ant the ant being stung
+   * @returns returns reults attack on ant.
    */
   sting(ant:Ant):boolean{
     console.log(this+ ' stings '+ant+'!');
@@ -76,7 +86,7 @@ export class Bee extends Insect {
   /**
    * Performs the act for a Bee turn
    * If a location is blocked by an Ant 
-   * and Bee is not in 'stuck' or 'cold' statue
+   * and Bee is not in 'stuck' or 'cold' status
    * Bee stings Ant and reduces armor.
    */
   act() {
@@ -99,6 +109,12 @@ export class Bee extends Insect {
  */
 export abstract class Ant extends Insect {
   protected boost:string;
+  /**
+   * constructor for an instance of an Ant, place is optional.
+   * @param armor amount of damage Ant can endure before expiring
+   * @param foodCost amount of food required to deploy 
+   * @param place location on game map 
+   */
   constructor(armor:number, private foodCost:number = 0, place?:Place) {
     super(armor, place);
   }
@@ -111,18 +127,20 @@ export abstract class Ant extends Insect {
 }
 
 /**
+ * Builder class for Grower Ant
  * Growers are ants that grow food and boosts. 
  * Each turn a Grower ant will either produce 1 food for the colony 
- * or a boost to be used by ither ants
- * Growers cost 1 food to deploy and have 1 armor.
+ * or a boost to be used by other ants
  */
 export class GrowerAnt extends Ant {
   readonly name:string = "Grower";
+  /**
+   * Grower Ant armor set to 1 and foodcost set to 1
+   */
   constructor() {
     super(1,1)
   }
   /**
-   * Uses Math function to produce a pseudo random number between 0 and 1
    * Based on the random number an action to the AntColony is performed
    * actions are adding a specific boost or increasing food.
    * @param colony AntColony to add the boost or food count to
@@ -144,23 +162,28 @@ export class GrowerAnt extends Ant {
 }
 
 /**
+ * Builder class for ThrowerAnt
  * Throwers are ants that throw leaves at bees to drive them off. 
  * Each turn a Thrower ant will throw one leaf at the closest bee within range. 
- * Note that Throwers can throw different leaves when boosted. 
- * Throwers cost 4 food to deploy and have 1 armor
  */
 export class ThrowerAnt extends Ant {
   readonly name:string = "Thrower";
   private damage:number = 1;
 
+  /**
+   * sets armor to 1 and foodcost to 4
+   */
   constructor() {
     super(1,4);
   }
 
   /**
-   * performs the action of a thrower
-   * thrower ants have condiiontal actions based on a specific boost
-   * boosts are passed in the form of a string
+   * performs the action of a thrower, throwing a leaf.
+   * sets target to closest Bee to throw a leaf at.
+   * A leaf will reduce the target's armor
+   * Thrower ants have alternative actions based on a specific boost.
+   * Boosts are passed in the form of a string and matched with the appropriate action.
+   * The Boost will change the amount of armor reduced, or set the Bee in an alternative status.
    */
   act() {
     if(this.boost !== 'BugSpray'){
@@ -198,16 +221,16 @@ export class ThrowerAnt extends Ant {
 }
 
 /**
- * Eaters are ants that will eat the bees outright! 
- * On its turn, an Eater ant will swallow a bee in the same tunnel and begin digesting. 
- * It takes 3 turns to eat the bee and be ready to eat another. 
- * If the Eater is damaged or perishes quickly after swallowing the bee, it may cough up the invader! 
- * Eaters cost 4 food to deploy and have 2 armor.
+ * Builder class for an EaterAnt
+ * EaterAnts eat Bees as their action
  */
 export class EaterAnt extends Ant {
   readonly name:string = "Eater";
   private turnsEating:number = 0;
   private stomach:Place = new Place('stomach');
+  /**
+   * EaterAnt armor set to 2 and foodcost set to 4.
+   */
   constructor() {
     super(2,4)
   }
@@ -282,12 +305,13 @@ export class EaterAnt extends Ant {
 /**
  * ScubaAnt can  throw leaves at the closest Bee. 
  * A ScubaAnt can survive in water 
- * Scuba ants cost 5 food and have 1 armor.
  */
 export class ScubaAnt extends Ant {
   readonly name:string = "Scuba";
   private damage:number = 1;
-
+/**
+ * armor set to 1 and foodcost set to 5
+ */
   constructor() {
     super(1,5)
   }
@@ -332,11 +356,12 @@ export class ScubaAnt extends Ant {
 
 /**
  * GuardAnts have their armor reduced before other Ants occupying the same tunnel. 
- * GuardAnts cost 4 food to deploy and have 2 armor. 
  */
 export class GuardAnt extends Ant {
   readonly name:string = "Guard";
-
+  /**
+   * GuardAnt armor set to 2 and foodcost set to 4
+   */
   constructor() {
     super(2,4)
   }
